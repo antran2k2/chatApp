@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #chat-box {
+            width: 80%;
+            margin: 20px auto;
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+        }
+
+        #message-input {
+            width: 80%;
+            padding: 10px;
+        }
+
+        #send-button {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #logout-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Welcome, {{.User}}</h1>
+<div id="chat-box"></div>
+<input type="text" id="message-input" placeholder="Type a message..."/>
+<button id="send-button">Send</button>
+<br/>
+<a href="/logout">
+    <button id="logout-button">Logout</button>
+</a>
+
+<script>
+    var ws = new WebSocket("ws://localhost:8080/ws"); // WebSocket connection
+
+    // Gửi tin nhắn
+    document.getElementById('send-button').onclick = function () {
+        var messageInput = document.getElementById('message-input');
+        var message = messageInput.value;
+        if (message) {
+            ws.send(JSON.stringify({user: '{{.User}}', content: message}));
+            messageInput.value = '';
+        }
+    };
+
+    // Nhận tin nhắn
+    ws.onmessage = function (event) {
+        var msg = JSON.parse(event.data);
+        var chatBox = document.getElementById('chat-box');
+        var messageElement = document.createElement('div');
+        messageElement.textContent = msg.user + ": " + msg.content;
+        chatBox.appendChild(messageElement);
+    };
+</script>
+</body>
+</html>
